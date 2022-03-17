@@ -20,7 +20,7 @@ def american_put(K, T, S, r, N, u, d):
         下降率.
 
     Returns
-    アメリアカンプット
+    アメリカンプット
     """
     dt = T/N
     p = (exp(r*dt)-d) / (u-d) #リスク中立の上昇確率
