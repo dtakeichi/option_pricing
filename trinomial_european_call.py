@@ -1,3 +1,7 @@
+import numpy as np
+from math import exp
+from math import sqrt
+
 def trinomial_tree_european_call(K, T, S, sig, r, div, N, dx):
     """
     Parameters
