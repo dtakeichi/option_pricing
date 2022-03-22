@@ -2,6 +2,7 @@ import numpy as np
 from math import exp
 from math import sqrt
 # p56, p58
+# 2変数2項モデル これはテキストにもあるように実用的ではない
 
 def american_spread_call(K, T, S1, S2, sig1, sig2, div1, div2, rho, r, N):
     """
