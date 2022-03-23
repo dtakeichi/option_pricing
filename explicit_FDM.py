@@ -58,3 +58,67 @@ def explicit_FDM_european_call(K, T, S, sig, r, div, N, Nj, dx):
     
  
 
+
+#############################################################################################
+
+"""
+図3.9
+"""
+def explicit_FDM_american_put(K, T, S, sig, r, div, N, Nj, dx):
+    """
+    p76 メモリ改善のため, 時間維持カンインデックスを上書きし2つになっている
+    Parameters
+    ----------
+    K : float
+        行使価格.
+    T : float
+        満期.
+    S : float
+        原資産価格.
+    sig : float
+        ボラティリティ.
+    r : float
+        リスクフリーレート.
+    div : float
+        配当率.
+    N : float
+        タイムステップ数.
+    dx : float
+        変動幅.
+
+    Returns
+    陽的差分法によるアメリカンプット
+    使用例 explicit_FDM_european_call(100, 1, 100, 0.2, 0.06, 0.03, 3, 3, 0.2)
+    """
+    dt = T/N
+    nu = r - div - 0.5*sig**2
+    edx = exp(dx)
+    pu = 0.5*dt*((sig/dx)**2 + nu/dx)  # 式(3.18)
+    pd = 0.5*dt*((sig/dx)**2 - nu/dx) 
+    pm = 1.0 - dt*(sig/dx)**2 - r*dt
+    
+    # 満期タイムステップNにおける原資産価格の初期設定
+    St = [0 for i in range(2*Nj+1)]
+    St[0] = S*exp(-Nj*dx)
+    for j in range(1,2*Nj+1):
+        St[j] = St[j-1]*edx
+    
+    # 満期によるオプション価格の初期設定
+    C = [[0 for i in range(0, 2*Nj+1)] for i in range(0,2)]
+    # 満期Nのペイオフ
+    for j in range(0,2*Nj+1): 
+        C[0][j] = max(0, K - St[j]) 
+    
+    # ラティスのバックステップ
+    for i in range(0,N)[::-1]: # i: N-1 -> 0
+        for j in range(1,2*Nj):
+            C[1][j] = pu*C[0][j+1] + pm*C[0][j] + pd*C[0][j-1]   
+        # 境界条件 (3.13), (3.14)式
+        C[1][0] = C[1][1] +  (St[1] - St[0])
+        C[1][2*Nj] = C[1][2*Nj-1]
+        # 早期行使条件の適用
+        for j in range(1,2*Nj):
+            C[0][j] = max(C[1][j], K - St[j])
+
+    return C[1][N]
+    
